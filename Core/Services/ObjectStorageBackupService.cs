@@ -22,7 +22,7 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
         if (file.SyncedAt != null) { return file; }
 
         string sanitizedPath = await _sanitizer.SanitizePathAsync(file.Path);
-        string sanitizedName = await _sanitizer.SanitizePathAsync(file.Name);
+        string sanitizedName = await _sanitizer.SanitizeFileNameAsync(file.Name);
 
         file.BackupLocation = $"{file.Storage}/{sanitizedPath}/{sanitizedName}/v{file.Version}.gzip";
         file.SyncedAt = DateTime.UtcNow;

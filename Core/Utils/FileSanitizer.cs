@@ -21,6 +21,20 @@ public class FileSanitizer : IFileSanitizer
     /// <inheritdoc />
     public Task<string> SanitizePathAsync(string path)
     {
-        throw new NotImplementedException();
+        bool isAlphanumeric = Regex.IsMatch(path, @"[a-zA-Z0-9_\-/]+");
+        bool hasInvalidPatterns = Regex.IsMatch(path, @"(//)|\.|\s");
+        if (!isAlphanumeric || hasInvalidPatterns)
+        {
+            throw new ArgumentException("The path is not safe!", nameof(path));
+        }
+
+        string sanitized = path;
+        if (path.EndsWith('/'))
+        {
+            sanitized = path[..^1]; // Exclude the last slash
+        }
+
+        string result = !path.StartsWith('/') ? $"/{sanitized}" : sanitized;
+        return Task.FromResult(result.ToLower());
     }
 }
