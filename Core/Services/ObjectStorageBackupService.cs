@@ -24,7 +24,7 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
         string sanitizedPath = await _sanitizer.SanitizePathAsync(file.Path);
         string sanitizedName = await _sanitizer.SanitizePathAsync(file.Name);
 
-        file.BackupLocation = $"{file.Storage}/{sanitizedPath}/{sanitizedName}/{file.Version}.gzip";
+        file.BackupLocation = $"{file.Storage}/{sanitizedPath}/{sanitizedName}/v{file.Version}.gzip";
         file.SyncedAt = DateTime.UtcNow;
 
         string sourcePath = await _storage.DownloadFileAsync(file);
