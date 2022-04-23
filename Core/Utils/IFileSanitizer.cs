@@ -6,7 +6,8 @@ public interface IFileSanitizer
     /// Sanitizes the file name, it should likely be an uuid or a hash already.
     /// </summary>
     /// <param name="name">of the file</param>
-    /// <returns></returns>
+    /// <exception cref="ArgumentException">the filename is not safe to use</exception>
+    /// <returns>sanitized name</returns>
     public Task<string> SanitizeFileNameAsync(string name);
     
     /// <summary>
