@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OffsiteWorker", "OffsiteWorker\OffsiteWorker.csproj", "{BF753180-5D08-47AE-99A6-D91EA9C9D7FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OffsiteWorkerTest", "OffsiteWorkerTest\OffsiteWorkerTest.csproj", "{27DBD38D-917E-4BC3-B4A8-2B4065100045}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{27DBD38D-917E-4BC3-B4A8-2B4065100045}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{A234CD4B-72AA-4C1A-B5F5-0861B6788E65}"
 EndProject

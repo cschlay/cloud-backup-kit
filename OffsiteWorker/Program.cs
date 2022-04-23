@@ -1,4 +1,5 @@
 using OffsiteWorker;
+using OffsiteWorker.Workers;
 
 IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((hostBuilderContext, services) =>
@@ -6,7 +7,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         // Dependency injections
         services.AddDatabase(hostBuilderContext);
         // Long running tasks
-        services.AddHostedService<Worker>();
+        services.AddHostedService<ObjectStorageSyncWorker>();
     })
     .Build();
 
