@@ -11,10 +11,15 @@ namespace Tests.Core.Services;
 public class CleanupServiceTest : DatabaseTestBase
 {
     private const string DirectoryPath = $"{TestConstants.FileDirectoryRoot}/CleanupTest";
-
+    private readonly CleanupService _service;
+    
     public CleanupServiceTest()
     {
         Directory.CreateDirectory(DirectoryPath);
+        _service = new CleanupService(
+            dbContext: DbContext, 
+            configuration: Configuration,
+            logger: MockLogger<CleanupService>());
     }
     
     [Fact]
@@ -24,6 +29,26 @@ public class CleanupServiceTest : DatabaseTestBase
         FileStream fileStream = File.Create(path);
         fileStream.Close();
 
+        ObjectStorageDeleteLog fixture = await CreateFixtureAsync(path);
+        await _service.CleanupObjectStorageBackupAsync();
+        Assert.False(File.Exists(path));
+        Assert.NotNull(fixture.ConfirmedAt);
+        Assert.Equal(SyncStatusEnum.Deleted, fixture.File!.Status);
+    }
+
+    [Fact]
+    public async Task CleanupFileDoesNotExist()
+    {
+        const string path = $"{DirectoryPath}/void/not-found/v3.gzip";
+        ObjectStorageDeleteLog fixture = await CreateFixtureAsync(path);
+        Assert.False(File.Exists(path));
+        await _service.CleanupObjectStorageBackupAsync();
+        await DbContext.Entry(fixture).ReloadAsync();
+        Assert.NotNull(fixture.ConfirmedAt);
+    }
+
+    private async Task<ObjectStorageDeleteLog> CreateFixtureAsync(string path)
+    {
         var file = new ObjectStorageFile
         {
             Name = "CleanupTest.txt",
@@ -32,21 +57,14 @@ public class CleanupServiceTest : DatabaseTestBase
             Status = SyncStatusEnum.Completed,
             SyncedAt = DateTime.UtcNow,
         };
-        var instance = new ObjectStorageDeleteLog
+        var log = new ObjectStorageDeleteLog
         {
             DeletedAt = DateTime.UtcNow,
             File = file
         };
-        DbContext.ObjectStorageDeleteLogs.Add(instance);
+        DbContext.ObjectStorageDeleteLogs.Add(log);
         await DbContext.SaveChangesAsync();
 
-        var service = new CleanupService(
-            dbContext: DbContext, 
-            configuration: Configuration,
-            logger: MockLogger<CleanupService>());
-        await service.CleanupObjectStorageBackupAsync();
-        Assert.False(File.Exists(path));
-        Assert.NotNull(instance.ConfirmedAt);
-        Assert.Equal(SyncStatusEnum.Deleted, file.Status);
+        return log;
     }
 }

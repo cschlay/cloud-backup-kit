@@ -28,10 +28,18 @@ public class CleanupService : ICleanupService
         IEnumerable<ObjectStorageDeleteLog> deleteLogs = FindObjectDeleteLogs();
         foreach (ObjectStorageDeleteLog deleteLog in deleteLogs)
         {
-            File.Delete(deleteLog.File!.BackupLocation);
-            deleteLog.File.Status = SyncStatusEnum.Deleted;
+            try
+            {
+                File.Delete(deleteLog.File!.BackupLocation);
+                deleteCount += 1;
+            }
+            catch (DirectoryNotFoundException)
+            {
+                // The file does not exist, no action needed.
+            }
+
+            deleteLog.File!.Status = SyncStatusEnum.Deleted;
             deleteLog.ConfirmedAt = DateTime.UtcNow;
-            deleteCount += 1;
         }
         await _dbContext.SaveChangesAsync();
         _logger.LogInformation("Backup file deletion completed: {count} files deleted", deleteCount);
@@ -42,7 +50,7 @@ public class CleanupService : ICleanupService
         DateTime deleteThreshold = DateTime.UtcNow.AddSeconds(-_delayInSeconds);
         return _dbContext.ObjectStorageDeleteLogs
             .Include(m => m.File)
-            .Where(m => m.DeletedAt < deleteThreshold)
+            .Where(m => m.DeletedAt < deleteThreshold && m.ConfirmedAt == null)
             .ToList();
     }
 }
