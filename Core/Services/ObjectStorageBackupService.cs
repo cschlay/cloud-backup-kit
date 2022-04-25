@@ -1,5 +1,5 @@
-﻿using System.IO.Compression;
-using Core.Enums;
+﻿using Core.Enums;
+using Core.Exceptions;
 using Core.Models;
 using Core.Utils;
 using Microsoft.Extensions.Configuration;
@@ -50,6 +50,10 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
             file.SyncedAt = DateTime.UtcNow;
             file.Status = SyncStatusEnum.Completed;
         }
+        catch (HttpResourceDoesNotExist)
+        {
+            file.Status = SyncStatusEnum.Deleted;
+        }
         catch (ArgumentException)
         {
             // The file is unsafe, it is probably because the developers did it insecurely.
@@ -57,6 +61,7 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
         }
         catch (Exception)
         {
+            // Failed could be retried later.
             file.Status = SyncStatusEnum.Failed;
         }
 

@@ -2,6 +2,7 @@
 
 public enum SyncStatusEnum
 {
+    Deleted,
     Declined,
     Failed,
     Pending,

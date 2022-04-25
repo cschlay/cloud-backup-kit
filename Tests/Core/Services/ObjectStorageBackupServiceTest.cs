@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Core;
 using Core.Enums;
+using Core.Exceptions;
 using Core.Models;
 using Core.Services;
 using Core.Utils;
@@ -18,11 +19,11 @@ public class ObjectStorageBackupServiceTest
     private readonly IConfiguration _configuration = TestConfiguration.BuildConfiguration();
     private const string DirectoryPath = $"{TestConstants.FileDirectoryRoot}/{TestConstants.StorageDirectory}";
 
-    [Fact]
-    public async Task BackupFileAsyncTest()
+    private readonly ObjectStorageFile _fixture;
+
+    public ObjectStorageBackupServiceTest()
     {
-        string content = $"test-{Guid.NewGuid()}";
-        var file = new ObjectStorageFile
+        _fixture =  new ObjectStorageFile
         {
             Name = "chewing-gum.jpg",
             Path = $"books/{nameof(BackupFileAsyncTest)}",
@@ -31,6 +32,12 @@ public class ObjectStorageBackupServiceTest
             Storage = TestConstants.StorageDirectory,
             Version = 1
         };
+    }
+    
+    [Fact]
+    public async Task BackupFileAsyncTest()
+    {
+        string content = $"test-{Guid.NewGuid()}";
         
         var mockHttpService = new Mock<IHttpService>();
         mockHttpService
@@ -43,13 +50,29 @@ public class ObjectStorageBackupServiceTest
             fileSanitizer: new FileSanitizer(),
             httpService: mockHttpService.Object);
 
-        file = await service.BackupFileAsync(file);
+        ObjectStorageFile file = await service.BackupFileAsync(_fixture);
         Assert.NotNull(file.SyncedAt);
         Assert.Equal(SyncStatusEnum.Completed, file.Status);
 
         var path = $"{DirectoryPath}/{file.Path.ToLower()}/v1.gzip";
         Assert.Equal(path, file.BackupLocation);
     }
+    
+    [Fact]
+    public async Task BackupFileAsync404Test()
+    {
+        var mockHttpService = new Mock<IHttpService>();
+        mockHttpService.Setup(m => m.OpenHttpStreamAsync(It.IsAny<string>())).Throws<HttpResourceDoesNotExist>();
+        var service = new ObjectStorageBackupService(
+            dbContext: new Mock<AppDbContext>().Object,
+            configuration: _configuration,
+            fileSanitizer: new FileSanitizer(),
+            httpService: mockHttpService.Object);
+        
+        ObjectStorageFile file = await service.BackupFileAsync(_fixture);
+        Assert.Equal(SyncStatusEnum.Deleted, file.Status);
+    }
+
 
     [Fact]
     public async Task SaveFileAsyncTest()
@@ -73,11 +96,5 @@ public class ObjectStorageBackupServiceTest
         string savedContent = await FileTools.ReadGzipTextContentAsync(path);
         Assert.True(File.Exists(path));
         Assert.Equal(content, savedContent);
-    }
-
-    [Fact]
-    public async Task SaveFileAsync404Test()
-    {
-        throw new NotImplementedException();
     }
 }
