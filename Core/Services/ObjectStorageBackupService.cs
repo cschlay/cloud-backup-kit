@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using Core.Enums;
 using Core.Models;
 using Core.Utils;
 
@@ -17,6 +18,15 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
         _storage = storage;
     }
 
+    public async Task BackupAsync()
+    {
+        IEnumerable<ObjectStorageFile> pending = FindPendingFiles();
+        
+        
+        await _dbContext.SaveChangesAsync();
+
+    }
+
     public async Task<ObjectStorageFile> BackupFileAsync(ObjectStorageFile file)
     {
         if (file.SyncedAt != null) { return file; }
@@ -27,9 +37,8 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
         file.BackupLocation = $"{file.Storage}/{sanitizedPath}/{sanitizedName}/v{file.Version}.gzip";
         file.SyncedAt = DateTime.UtcNow;
 
-        string sourcePath = await _storage.DownloadFileAsync(file);
+        string sourcePath = await _storage.DownloadFileAsync(file.SignedDownloadUrl);
         await CompressAndSaveFileAsync(sourcePath, file.BackupLocation);
-        await _dbContext.SaveChangesAsync();
         
         return file;
     }
@@ -38,9 +47,11 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
     /// Finds the pending files assigned to to a the worker. The files that are not synced.
     /// </summary>
     /// <returns>the pending files</returns>
-    public List<ObjectStorageFile> FindPendingFiles()
+    private IEnumerable<ObjectStorageFile> FindPendingFiles()
     {
-        return _dbContext.ObjectStorageFiles.Where(m => m.SyncedAt == null).ToList();
+        return _dbContext.ObjectStorageFiles
+            .Where(m => m.SyncedAt == null && m.Status == SyncStatusEnum.Pending)
+            .ToList();
     }
 
     // https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream

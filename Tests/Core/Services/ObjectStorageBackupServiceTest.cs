@@ -15,12 +15,8 @@ public class ObjectStorageBackupServiceTest
     [Fact]
     public async Task BackupFileAsyncTest()
     {
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string>())
-            .Build();
-        
         var mockDb = new Mock<AppDbContext>();
-        var service = new ObjectStorageBackupService(mockDb.Object, new FileSanitizer(), new ObjectStorageService(configuration));
+        var service = new ObjectStorageBackupService(mockDb.Object, new FileSanitizer(), new ObjectStorageService());
         
         var file = new ObjectStorageFile
         {

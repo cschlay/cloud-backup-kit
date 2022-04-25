@@ -7,7 +7,16 @@ In this repository you can find a collection of tools to do it yourself.
 You will need at least a backup machine and a disk to put the data in e.g.
 a [Raspberry Pi](https://www.raspberrypi.com/) and SSD/HDD disk is sufficient for small applications.
 
-## Off-Site Worker
+## Installation
+
+TODOS:
+
+- LocalStack
+- Configuration
+
+## Features
+
+### Off-Site Worker
 
 This application runs locally, it will expect an open connection to a SQL database.
 It does not use a queueing services and will poll the database periodically.

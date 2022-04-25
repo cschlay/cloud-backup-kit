@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Core.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Core.Models;
@@ -14,8 +16,13 @@ public class ObjectStorageFile
     public string Name { get; set; } = "";
     public string Path { get; set; } = "";
     public string Storage { get; set; } = "";
+
+    public string SignedDownloadUrl { get; set; } = "";
     
     public DateTime CreatedAt { get; set; }
     public DateTime? SyncedAt { get; set; }
+
+    [Column(TypeName = "varchar(10)")]
+    public SyncStatusEnum Status { get; set; }
     public int Version { get; set; }
 }

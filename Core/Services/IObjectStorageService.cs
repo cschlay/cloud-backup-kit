@@ -7,8 +7,8 @@ public interface IObjectStorageService
     /// <summary>
     /// Downloads the file from temporary cloud storage.
     /// </summary>
-    /// <param name="file">information of the file</param>
+    /// <param name="url">the url of the file</param>
     /// <returns>The temporary location stored</returns>
-    public Task<string> DownloadFileAsync(ObjectStorageFile file);
+    public Task<string> DownloadFileAsync(string url);
 }
 

@@ -1,30 +1,15 @@
-﻿using Core.Integrations.ObjectStorage;
-using Core.Models;
-using Microsoft.Extensions.Configuration;
+﻿using Core.Models;
 
 namespace Core.Services;
 
 public class ObjectStorageService : IObjectStorageService
 {
-    private IObjectStorageProvider _provider;
-        
-    public ObjectStorageService(IConfiguration configuration)
+    public ObjectStorageService()
     {
-        _provider = GetProvider(configuration);
     }
 
-    public Task<string> DownloadFileAsync(ObjectStorageFile file)
+    public Task<string> DownloadFileAsync(string url)
     {
         throw new NotImplementedException();
-    }
-
-    private IObjectStorageProvider GetProvider(IConfiguration configuration)
-    {
-        string provider = configuration["ObjectStorage:Provider"];
-        if (provider == "Azure")
-        {
-            return new AzureBlobStorageProvider();
-        }
-        return new AwsS3Provider();
     }
 }
