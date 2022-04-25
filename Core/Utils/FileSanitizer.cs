@@ -34,7 +34,7 @@ public class FileSanitizer : IFileSanitizer
             sanitized = path[..^1]; // Exclude the last slash
         }
 
-        string result = !path.StartsWith('/') ? $"/{sanitized}" : sanitized;
+        string result = path.StartsWith('/') ? sanitized[1..] : sanitized;
         return Task.FromResult(result.ToLower());
     }
 }

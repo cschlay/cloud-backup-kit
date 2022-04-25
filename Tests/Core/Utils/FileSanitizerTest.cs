@@ -39,10 +39,10 @@ public class FileSanitizerTest
     }
 
     [Theory]
-    [InlineData("/06fd9f95-f8e6-401c-b435-0253a3527270", "/06fd9f95-f8e6-401c-b435-0253a3527270")]
-    [InlineData("/a/b/c/", "/a/b/c")]
-    [InlineData("a", "/a")]
-    [InlineData("/a", "/a")]
+    [InlineData("/06fd9f95-f8e6-401c-b435-0253a3527270", "06fd9f95-f8e6-401c-b435-0253a3527270")]
+    [InlineData("/a/b/c/", "a/b/c")]
+    [InlineData("a", "a")]
+    [InlineData("/a", "a")]
     public async Task ValidatePathAsyncTest(string path, string expected)
     {
         string result = await _sanitizer.SanitizePathAsync(path);
