@@ -1,10 +1,10 @@
 ﻿using Core.Models;
 
-namespace Core.Services;
+namespace Core.Services.Interfaces;
 
 public interface IObjectStorageBackupService
 {
-    public Task BackupAsync();
+    public Task<int> BackupAsync();
     
     /// <summary>
     /// Retrieves the file and archives it.

@@ -1,3 +1,5 @@
+using Core.Services;
+using Core.Services.Interfaces;
 using Core.Utils;
 using OffsiteWorker;
 using OffsiteWorker.Workers;
@@ -8,7 +10,10 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHttpClient();
         // Dependency injections
         services.AddDatabase(hostBuilderContext);
+        services.AddTransient<ICleanupService, ICleanupService>();
         services.AddTransient<IFileSanitizer, FileSanitizer>();
+        services.AddTransient<IHttpService, HttpService>();
+        services.AddTransient<IObjectStorageBackupService, ObjectStorageBackupService>();
         // Long running tasks
         services.AddHostedService<ObjectStorageSyncWorker>();
     })

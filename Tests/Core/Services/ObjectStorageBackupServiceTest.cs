@@ -7,16 +7,15 @@ using Core.Enums;
 using Core.Exceptions;
 using Core.Models;
 using Core.Services;
+using Core.Services.Interfaces;
 using Core.Utils;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
 namespace Tests.Core.Services;
 
-public class ObjectStorageBackupServiceTest
+public class ObjectStorageBackupServiceTest : TestBase
 {
-    private readonly IConfiguration _configuration = TestConfiguration.BuildConfiguration();
     private const string DirectoryPath = $"{TestConstants.FileDirectoryRoot}/{TestConstants.StorageDirectory}";
 
     private readonly ObjectStorageFile _fixture;
@@ -33,7 +32,7 @@ public class ObjectStorageBackupServiceTest
             Version = 1
         };
     }
-    
+
     [Fact]
     public async Task BackupFileAsyncTest()
     {
@@ -46,7 +45,7 @@ public class ObjectStorageBackupServiceTest
         
         var service = new ObjectStorageBackupService(
             dbContext: new Mock<AppDbContext>().Object,
-            configuration: _configuration,
+            configuration: Configuration,
             fileSanitizer: new FileSanitizer(),
             httpService: mockHttpService.Object);
 
@@ -65,14 +64,13 @@ public class ObjectStorageBackupServiceTest
         mockHttpService.Setup(m => m.OpenHttpStreamAsync(It.IsAny<string>())).Throws<HttpResourceDoesNotExist>();
         var service = new ObjectStorageBackupService(
             dbContext: new Mock<AppDbContext>().Object,
-            configuration: _configuration,
+            configuration: Configuration,
             fileSanitizer: new FileSanitizer(),
             httpService: mockHttpService.Object);
         
         ObjectStorageFile file = await service.BackupFileAsync(_fixture);
         Assert.Equal(SyncStatusEnum.Deleted, file.Status);
     }
-
 
     [Fact]
     public async Task SaveFileAsyncTest()
@@ -85,7 +83,7 @@ public class ObjectStorageBackupServiceTest
         
         var service = new ObjectStorageBackupService(
             dbContext: new Mock<AppDbContext>().Object,
-            configuration: _configuration,
+            configuration: Configuration,
             fileSanitizer: new FileSanitizer(),
             httpService: mockHttpService.Object);
 

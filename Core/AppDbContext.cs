@@ -6,6 +6,7 @@ namespace Core;
 #nullable disable
 public class AppDbContext : DbContext
 {
+    public DbSet<ObjectStorageDeleteLog> ObjectStorageDeleteLogs { get; set; }
     public DbSet<ObjectStorageFile> ObjectStorageFiles { get; set; }
     
     /// <summary>For test mocks only, do not use!</summary>
