@@ -2,23 +2,27 @@
 using Core.Enums;
 using Core.Models;
 using Core.Utils;
+using Microsoft.Extensions.Configuration;
 
 namespace Core.Services;
 
 public class ObjectStorageBackupService : IObjectStorageBackupService
 {
     private readonly AppDbContext _dbContext;
-    private readonly IFileSanitizer _sanitizer;
+    private readonly IFileSanitizer _fileSanitizer;
     private readonly IHttpService _httpService;
+    private readonly string _fileSystemRoot;
     
     public ObjectStorageBackupService(
         AppDbContext dbContext,
-        IFileSanitizer sanitizer,
+        IConfiguration configuration,
+        IFileSanitizer fileSanitizer,
         IHttpService httpService)
     {
         _dbContext = dbContext;
+        _fileSanitizer = fileSanitizer;
+        _fileSystemRoot = configuration.GetFileSystemRoot();
         _httpService = httpService;
-        _sanitizer = sanitizer;
     }
 
     public async Task BackupAsync()
@@ -34,25 +38,41 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
     /// <inheritdoc />
     public async Task<ObjectStorageFile> BackupFileAsync(ObjectStorageFile file)
     {
-        if (file.SyncedAt != null) { return file; }
+        if (file.Status == SyncStatusEnum.Completed) { return file; }
 
-        string sanitizedPath = await _sanitizer.SanitizePathAsync(file.Path);
-        string sanitizedName = await _sanitizer.SanitizeFileNameAsync(file.Name);
+        try
+        {
+            string sanitizedPath = await _fileSanitizer.SanitizePathAsync(file.Path);
+            string directoryPath = $"{_fileSystemRoot}/{file.Storage}/{sanitizedPath}";
+            string filename = $"v{file.Version}.gzip";
 
-        file.BackupLocation = $"{file.Storage}/{sanitizedPath}/{sanitizedName}/v{file.Version}.gzip";
-        file.SyncedAt = DateTime.UtcNow;
+            file.BackupLocation = await SaveFileAsync(file.SignedDownloadUrl, directoryPath, filename);
+            file.SyncedAt = DateTime.UtcNow;
+            file.Status = SyncStatusEnum.Completed;
+        }
+        catch (ArgumentException)
+        {
+            // The file is unsafe, it is probably because the developers did it insecurely.
+            file.Status = SyncStatusEnum.Declined;
+        }
+        catch (Exception)
+        {
+            file.Status = SyncStatusEnum.Failed;
+        }
 
-        await SaveFileAsync(file.SignedDownloadUrl, file.BackupLocation);
-        
         return file;
     }
 
     /// <inheritdoc />
-    public async Task SaveFileAsync(string source, string target)
+    public async Task<string> SaveFileAsync(string source, string directory, string filename)
     {
+        Directory.CreateDirectory(directory);
+        var path = $"{directory}/{filename}";
         Stream sourceStream = await _httpService.OpenHttpStreamAsync(source);
-        await using FileStream targetStream = File.Create(target);
+        await using FileStream targetStream = File.Create(path);
         FileTools.CompressAsync(sourceStream, targetStream);
+        
+        return path;
     }
     
     /// <summary>

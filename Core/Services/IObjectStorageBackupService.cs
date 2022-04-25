@@ -17,6 +17,8 @@ public interface IObjectStorageBackupService
     /// Fetch the file from source and compress it to a location.
     /// </summary>
     /// <param name="source">the url of file</param>
-    /// <param name="target">archive path of the file</param>
-    public Task SaveFileAsync(string source, string target);
+    /// <param name="directoryPath">to put versioned files</param>
+    /// <param name="filename">the name of file</param>
+    /// <returns>the path to the file</returns>
+    public Task<string> SaveFileAsync(string source, string directoryPath, string filename);
 }
