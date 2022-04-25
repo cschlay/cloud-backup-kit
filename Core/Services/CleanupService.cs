@@ -21,12 +21,6 @@ public class CleanupService : ICleanupService
     }
 
     /// <inheritdoc />
-    public async Task CleanupAsync()
-    {
-        await CleanupObjectStorageBackupAsync();
-    }
-
-    /// <inheritdoc />
     public async Task CleanupObjectStorageBackupAsync()
     {
         var deleteCount = 0;

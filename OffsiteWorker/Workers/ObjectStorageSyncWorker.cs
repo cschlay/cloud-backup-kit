@@ -1,5 +1,4 @@
 ﻿using Core;
-using Core.Services;
 using Core.Services.Interfaces;
 
 namespace OffsiteWorker.Workers;
@@ -20,14 +19,15 @@ public class ObjectStorageSyncWorker : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken cancellation)
     {
         using IServiceScope scope = _serviceScopeFactory.CreateScope();
-        var service = scope.ServiceProvider.GetService<IObjectStorageBackupService>()!;
+        var backupService = scope.ServiceProvider.GetService<IObjectStorageBackupService>()!;
+        var cleanupService = scope.ServiceProvider.GetService<ICleanupService>()!;
         
         while (!cancellation.IsCancellationRequested)
         {
             _logger.LogInformation("Starting file sync...");
-            int count = await service.BackupAsync();
+            int count = await backupService.BackupAsync();
             _logger.LogInformation("File sync finished, {count} files processed.", count);
-            
+            await cleanupService.CleanupObjectStorageBackupAsync();
             await Task.Delay(_syncInterval, cancellation);
         }
     }
