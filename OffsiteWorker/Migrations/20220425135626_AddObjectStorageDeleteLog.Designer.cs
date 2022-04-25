@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace OffsiteWorker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220425134645_AddObjectStorageDeleteLog")]
+    [Migration("20220425135626_AddObjectStorageDeleteLog")]
     partial class AddObjectStorageDeleteLog
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,6 +23,30 @@ namespace OffsiteWorker.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Core.Models.ObjectStorageDeleteLog", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("FileId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileId");
+
+                    b.ToTable("ObjectStorageDeleteLogs");
+                });
 
             modelBuilder.Entity("Core.Models.ObjectStorageFile", b =>
                 {
@@ -75,6 +99,17 @@ namespace OffsiteWorker.Migrations
                         .IsUnique();
 
                     b.ToTable("ObjectStorageFiles");
+                });
+
+            modelBuilder.Entity("Core.Models.ObjectStorageDeleteLog", b =>
+                {
+                    b.HasOne("Core.Models.ObjectStorageFile", "File")
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("File");
                 });
 #pragma warning restore 612, 618
         }
