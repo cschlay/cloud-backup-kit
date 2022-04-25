@@ -4,7 +4,7 @@ namespace Core.Services;
 
 public interface IObjectStorageBackupService
 {
-    public Task BackupAsync();
+    public Task<int> BackupAsync();
     
     /// <summary>
     /// Retrieves the file and archives it.

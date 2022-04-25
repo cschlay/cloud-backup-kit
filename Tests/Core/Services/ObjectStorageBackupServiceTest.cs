@@ -33,7 +33,7 @@ public class ObjectStorageBackupServiceTest
             Version = 1
         };
     }
-    
+
     [Fact]
     public async Task BackupFileAsyncTest()
     {
@@ -72,7 +72,6 @@ public class ObjectStorageBackupServiceTest
         ObjectStorageFile file = await service.BackupFileAsync(_fixture);
         Assert.Equal(SyncStatusEnum.Deleted, file.Status);
     }
-
 
     [Fact]
     public async Task SaveFileAsyncTest()

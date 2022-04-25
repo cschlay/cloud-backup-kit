@@ -25,14 +25,26 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
         _httpService = httpService;
     }
 
-    public async Task BackupAsync()
+    public async Task<int> BackupAsync()
     {
-        IEnumerable<ObjectStorageFile> pending = FindPendingFiles();
-        // TODO: Queue the items
-        // TODO: Download in batches
-        
-        await _dbContext.SaveChangesAsync();
+        var count = 0;
+        IEnumerable<ObjectStorageFile> pendingFiles = FindPendingFiles();
 
+        var tasks = new List<Task<ObjectStorageFile>>();
+        foreach (ObjectStorageFile file in pendingFiles)
+        {
+            tasks.Add(BackupFileAsync(file));
+
+            if (tasks.Count > 5)
+            {
+                count += 1;
+                await Task.WhenAll(tasks);
+                tasks.Clear();
+                await _dbContext.SaveChangesAsync();
+            } 
+        }
+        await Task.WhenAll(tasks);
+        return count;
     }
 
     /// <inheritdoc />
