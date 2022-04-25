@@ -9,10 +9,31 @@ a [Raspberry Pi](https://www.raspberrypi.com/) and SSD/HDD disk is sufficient fo
 
 ## Installation
 
-TODOS:
+TODO: Write installation instruction to backup machine.
 
-- LocalStack
-- Configuration
+## Use
+
+To be absolute safe, create a database user with restricted permissions on server-side.
+
+### Uploads
+
+Write the following record to `ObjectStorageFiles`-table  when a file is uploaded, the service worker will pick it up.
+
+| Name           | Path          | Storage  | Version | Hash           | SignedDownloadUrl |
+|----------------|---------------|----------|---------|----------------|-------------------|
+| "FileName.jpg" | "path/in/s3/" | "s3"     | 1       | "sha-256-hash" | "https://...."    |
+
+If the file is updated, add another record and increment the version number.
+
+### Deletes
+
+Create a record to `ObjectStorageDeleteLog` if a file is deleted but don't delete previous records.
+The backup file will be deleted after a while.
+
+| FileId |
+|--------|
+| 1      |
+
 
 ## Features
 
