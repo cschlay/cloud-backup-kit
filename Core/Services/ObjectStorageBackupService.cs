@@ -9,24 +9,29 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
 {
     private readonly AppDbContext _dbContext;
     private readonly IFileSanitizer _sanitizer;
-    private readonly IObjectStorageService _storage;
+    private readonly IHttpService _httpService;
     
-    public ObjectStorageBackupService(AppDbContext dbContext, IFileSanitizer sanitizer, IObjectStorageService storage)
+    public ObjectStorageBackupService(
+        AppDbContext dbContext,
+        IFileSanitizer sanitizer,
+        IHttpService httpService)
     {
         _dbContext = dbContext;
+        _httpService = httpService;
         _sanitizer = sanitizer;
-        _storage = storage;
     }
 
     public async Task BackupAsync()
     {
         IEnumerable<ObjectStorageFile> pending = FindPendingFiles();
-        
+        // TODO: Queue the items
+        // TODO: Download in batches
         
         await _dbContext.SaveChangesAsync();
 
     }
 
+    /// <inheritdoc />
     public async Task<ObjectStorageFile> BackupFileAsync(ObjectStorageFile file)
     {
         if (file.SyncedAt != null) { return file; }
@@ -37,10 +42,17 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
         file.BackupLocation = $"{file.Storage}/{sanitizedPath}/{sanitizedName}/v{file.Version}.gzip";
         file.SyncedAt = DateTime.UtcNow;
 
-        string sourcePath = await _storage.DownloadFileAsync(file.SignedDownloadUrl);
-        await CompressAndSaveFileAsync(sourcePath, file.BackupLocation);
+        await SaveFileAsync(file.SignedDownloadUrl, file.BackupLocation);
         
         return file;
+    }
+
+    /// <inheritdoc />
+    public async Task SaveFileAsync(string source, string target)
+    {
+        Stream sourceStream = await _httpService.OpenHttpStreamAsync(source);
+        await using FileStream targetStream = File.Create(target);
+        FileTools.CompressAsync(sourceStream, targetStream);
     }
     
     /// <summary>
@@ -52,14 +64,5 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
         return _dbContext.ObjectStorageFiles
             .Where(m => m.SyncedAt == null && m.Status == SyncStatusEnum.Pending)
             .ToList();
-    }
-
-    // https://docs.microsoft.com/en-us/dotnet/api/system.io.compression.gzipstream
-    private static async Task CompressAndSaveFileAsync(string source, string target)
-    {
-        await using FileStream sourceStream = File.Open(source, FileMode.Open);
-        await using FileStream targetStream = File.Create(target);
-        await using var gzip = new GZipStream(targetStream, CompressionMode.Compress);
-        await sourceStream.CopyToAsync(gzip);
     }
 }

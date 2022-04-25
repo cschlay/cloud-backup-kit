@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Core;
-using Core.Models;
 using Core.Services;
 using Core.Utils;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using Xunit;
 
@@ -15,14 +15,28 @@ public class ObjectStorageBackupServiceTest
     [Fact]
     public async Task BackupFileAsyncTest()
     {
-        var mockDb = new Mock<AppDbContext>();
-        var service = new ObjectStorageBackupService(mockDb.Object, new FileSanitizer(), new ObjectStorageService());
+    }
+
+    [Fact]
+    public async Task SaveFileAsyncTest()
+    {
+        string content = $"test-{Guid.NewGuid()}";
         
-        var file = new ObjectStorageFile
-        {
-            Id = 1,
-            Path = "/test/file"
-        };
-        await service.BackupFileAsync(file);
+        var mockHttpService = new Mock<IHttpService>();
+        mockHttpService
+            .Setup(m => m.OpenHttpStreamAsync(It.IsAny<string>()))
+            .ReturnsAsync(new MemoryStream(Encoding.UTF8.GetBytes(content)));
+        
+        var service = new ObjectStorageBackupService(
+            new Mock<AppDbContext>().Object,
+            new FileSanitizer(),
+            mockHttpService.Object);
+
+        const string path = $"{TestConstants.FileDirectoryRoot}/{nameof(SaveFileAsyncTest)}.txt.gzip";
+        await service.SaveFileAsync("/", path);
+        Assert.True(File.Exists(path));
+
+        string savedContent = await FileTools.ReadGzipTextContentAsync(path);
+        Assert.Equal(content, savedContent);
     }
 }
