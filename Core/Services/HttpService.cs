@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Core.Exceptions;
+using Core.Services.Interfaces;
 
 namespace Core.Services;
 

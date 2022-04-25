@@ -1,6 +1,7 @@
 ﻿using Core.Enums;
 using Core.Exceptions;
 using Core.Models;
+using Core.Services.Interfaces;
 using Core.Utils;
 using Microsoft.Extensions.Configuration;
 

@@ -1,5 +1,6 @@
 ﻿using Core;
 using Core.Services;
+using Core.Services.Interfaces;
 
 namespace OffsiteWorker.Workers;
 
