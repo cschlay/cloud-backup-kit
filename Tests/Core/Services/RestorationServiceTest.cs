@@ -1,0 +1,55 @@
+﻿using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Azure.Storage.Blobs;
+using Core.Enums;
+using Core.Models;
+using Core.Services;
+using Xunit;
+
+namespace Tests.Core.Services;
+
+public class RestorationServiceTest : DatabaseTestBase
+{
+    [Fact]
+    public async Task RestoreObjectStorageAsyncTest()
+    {
+        Setup();
+        var container = new BlobContainerClient("UseDevelopmentStorage=true", "test-restore");
+        await container.DeleteIfExistsAsync();
+        await container.CreateAsync();
+
+        var service = new RestorationService();
+        await service.RestoreObjectStorageAsync("test-restore");
+
+        IQueryable<ObjectStorageFile> files = DbContext.ObjectStorageFiles.Where(m => m.Storage == "test-restore");
+        foreach (ObjectStorageFile file in files)
+        {
+            bool exists = await container.GetBlobClient(file.Path).ExistsAsync();
+            Assert.True(exists);
+        }
+    }
+
+    private void Setup()
+    {
+        const string directory = $"{TestConstants.FileDirectoryRoot}/test-restore";
+        Directory.Delete(directory, true);
+        Directory.CreateDirectory(directory);
+        for (var i = 1; i <= 5; i++)
+        {
+            string path = $"{TestConstants.FileDirectoryRoot}/test-restore/file_{i}.gzip";
+            File.Create(path);
+            DbContext.ObjectStorageFiles.Add(new ObjectStorageFile
+            {
+                Name = $"test-{i}",
+                Path = $"restored/test-{i}.txt",
+                BackupLocation = path,
+                Status = SyncStatusEnum.Completed,
+                Storage = "test-restore",
+                SyncedAt = DateTime.UtcNow,
+            });
+        }
+        DbContext.SaveChanges();
+    }
+}

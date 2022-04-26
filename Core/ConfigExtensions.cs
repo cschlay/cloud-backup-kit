@@ -4,6 +4,9 @@ namespace Core;
 
 public static class ConfigExtensions
 {
+    public static string GetAzureBlobStorageKey(this IConfiguration conf) =>
+        conf.GetConnectionString("AzureBlobStorage");
+ 
     public static int GetCleanupDelay(this IConfiguration conf) => int.Parse(conf["App:CleanupDelay"]);
     public static string GetFileSystemRoot(this IConfiguration conf) => conf["App:FileSystemRoot"];
 
