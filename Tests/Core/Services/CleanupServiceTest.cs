@@ -25,7 +25,7 @@ public class CleanupServiceTest : DatabaseTestBase
     [Fact]
     public async Task CleanupObjectStorageBackupAsyncTest()
     {
-        const string path = $"{DirectoryPath}/v3.gzip";
+        const string path = $"{DirectoryPath}/v3";
         FileStream fileStream = File.Create(path);
         fileStream.Close();
 
@@ -39,7 +39,7 @@ public class CleanupServiceTest : DatabaseTestBase
     [Fact]
     public async Task CleanupFileDoesNotExist()
     {
-        const string path = $"{DirectoryPath}/void/not-found/v3.gzip";
+        const string path = $"{DirectoryPath}/void/not-found/v3";
         ObjectStorageDeleteLog fixture = await CreateFixtureAsync(path);
         Assert.False(File.Exists(path));
         await _service.CleanupObjectStorageBackupAsync();

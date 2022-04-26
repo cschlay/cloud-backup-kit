@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Core.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -16,7 +15,8 @@ public class TestBase
         builder.AddInMemoryCollection(new Dictionary<string, string>
         {
             { "App:FileSystemRoot", TestConstants.FileDirectoryRoot },
-            { "App:CleanupDelay", "0" }
+            { "App:CleanupDelay", "0" },
+            { "ConnectionStrings:AzureBlobStorage", "UseDevelopmentStorage=true" }
         });
 
         Configuration = builder.Build();

@@ -4,5 +4,5 @@ namespace Core.Services.Interfaces;
 
 public interface IObjectStorageProvider
 {
-    public Task RestoreFile(ObjectStorageFile file);
+    public Task RestoreFileAsync(ObjectStorageFile file);
 }

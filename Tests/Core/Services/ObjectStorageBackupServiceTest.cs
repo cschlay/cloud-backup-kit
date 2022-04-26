@@ -53,7 +53,7 @@ public class ObjectStorageBackupServiceTest : TestBase
         Assert.NotNull(file.SyncedAt);
         Assert.Equal(SyncStatusEnum.Completed, file.Status);
 
-        var path = $"{DirectoryPath}/{file.Path.ToLower()}/v1.gzip";
+        var path = $"{DirectoryPath}/{file.Path.ToLower()}/v1";
         Assert.Equal(path, file.BackupLocation);
     }
     
@@ -87,12 +87,11 @@ public class ObjectStorageBackupServiceTest : TestBase
             fileSanitizer: new FileSanitizer(),
             httpService: mockHttpService.Object);
 
-        const string filename = $"{nameof(SaveFileAsyncTest)}.txt.gzip";
+        const string filename = $"{nameof(SaveFileAsyncTest)}";
         const string path = $"{DirectoryPath}/{filename}";
         await service.SaveFileAsync("/", DirectoryPath, filename);
-        
-        string savedContent = await FileTools.ReadGzipTextContentAsync(path);
+
         Assert.True(File.Exists(path));
-        Assert.Equal(content, savedContent);
+        Assert.Equal(content, await File.ReadAllTextAsync(path));
     }
 }
