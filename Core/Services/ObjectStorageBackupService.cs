@@ -57,7 +57,7 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
         {
             string sanitizedPath = await _fileSanitizer.SanitizePathAsync(file.Path);
             string directoryPath = $"{_fileSystemRoot}/{file.Storage}/{sanitizedPath}";
-            string filename = $"v{file.Version}.gzip";
+            string filename = $"v{file.Version}";
 
             file.BackupLocation = await SaveFileAsync(file.SignedDownloadUrl, directoryPath, filename);
             file.SyncedAt = DateTime.UtcNow;
@@ -88,8 +88,8 @@ public class ObjectStorageBackupService : IObjectStorageBackupService
         var path = $"{directory}/{filename}";
         Stream sourceStream = await _httpService.OpenHttpStreamAsync(source);
         await using FileStream targetStream = File.Create(path);
-        FileTools.CompressAsync(sourceStream, targetStream);
-        
+        await sourceStream.CopyToAsync(targetStream);
+
         return path;
     }
     

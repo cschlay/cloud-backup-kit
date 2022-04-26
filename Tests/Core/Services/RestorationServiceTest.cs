@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
 using Core.Enums;
 using Core.Models;
 using Core.Services;
-using Moq;
+using Core.Utils;
 using Xunit;
 
 namespace Tests.Core.Services;
@@ -43,11 +44,15 @@ public class RestorationServiceTest : DatabaseTestBase
         Directory.CreateDirectory(directory);
         for (var i = 1; i <= 5; i++)
         {
-            string path = $"{TestConstants.FileDirectoryRoot}/test-restore/file_{i}.gzip";
-            File.Create(path);
+            string path = $"{TestConstants.FileDirectoryRoot}/test-restore/file_{i}";
+            FileStream fileStream = File.Create(path);
+            fileStream.Write(Encoding.UTF8.GetBytes("Test Content"));
+            fileStream.Close();
+            
             DbContext.ObjectStorageFiles.Add(new ObjectStorageFile
             {
                 Name = $"test-{i}",
+                ContentType = "text/plain",
                 Path = $"restored/test-{i}.txt",
                 BackupLocation = path,
                 Status = SyncStatusEnum.Completed,
