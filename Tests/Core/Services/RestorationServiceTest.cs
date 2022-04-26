@@ -6,6 +6,7 @@ using Azure.Storage.Blobs;
 using Core.Enums;
 using Core.Models;
 using Core.Services;
+using Moq;
 using Xunit;
 
 namespace Tests.Core.Services;
@@ -20,7 +21,11 @@ public class RestorationServiceTest : DatabaseTestBase
         await container.DeleteIfExistsAsync();
         await container.CreateAsync();
 
-        var service = new RestorationService();
+        var storageProvider = new AzureBlobStorageProvider(configuration: Configuration);
+        var service = new RestorationService(
+            dbContext: DbContext,
+            logger: MockLogger<RestorationService>(),
+            storageProvider: storageProvider);
         await service.RestoreObjectStorageAsync("test-restore");
 
         IQueryable<ObjectStorageFile> files = DbContext.ObjectStorageFiles.Where(m => m.Storage == "test-restore");
