@@ -10,7 +10,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddHttpClient();
         // Dependency injections
         services.AddDatabase(hostBuilderContext);
-        services.AddTransient<ICleanupService, ICleanupService>();
+        services.AddTransient<ICleanupService, CleanupService>();
         services.AddTransient<IFileSanitizer, FileSanitizer>();
         services.AddTransient<IHttpService, HttpService>();
         services.AddTransient<IObjectStorageBackupService, ObjectStorageBackupService>();

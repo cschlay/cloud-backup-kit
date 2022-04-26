@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Core.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Core.Models;
 
@@ -12,6 +13,7 @@ public class ObjectStorageFile
     public Int64 Id { get; set; }
     
     public string BackupLocation { get; set; } = "";
+    public string ContentType { get; set; } = "";
     public string Hash { get; set; } = "";
     public string Name { get; set; } = "";
     public string Path { get; set; } = "";
@@ -25,4 +27,12 @@ public class ObjectStorageFile
     [Column(TypeName = "varchar(10)")]
     public SyncStatusEnum Status { get; set; }
     public int Version { get; set; }
+}
+
+public class ObjectStorageFileConfiguration : IEntityTypeConfiguration<ObjectStorageFile>
+{
+    public void Configure(EntityTypeBuilder<ObjectStorageFile> builder)
+    {
+        builder.Property(m => m.CreatedAt).HasDefaultValueSql("now()");
+    }
 }
