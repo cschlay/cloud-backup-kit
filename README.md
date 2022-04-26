@@ -3,7 +3,7 @@
 Many cloud providers offer built-in managed backups, however it has not helped me to sleep better.
 There also exists third-party service providers that manage your off-site backups.
 
-In this repository you can find a collection of tools to do it yourself.
+In this repository, you can find a collection of tools to perform off-site backups.
 You will need at least a backup machine and a disk to put the data in e.g.
 a [Raspberry Pi](https://www.raspberrypi.com/) and SSD/HDD disk is sufficient for small applications.
 
@@ -27,13 +27,12 @@ If the file is updated, add another record and increment the version number.
 
 ### Deletes
 
-Create a record to `ObjectStorageDeleteLog` if a file is deleted but don't delete previous records.
+Create a record to `ObjectStorageDeleteLog` on file delete but don't delete previous records.
 The backup file will be deleted after a while.
 
 | FileId |
 |--------|
 | 1      |
-
 
 ## Features
 
