@@ -3,6 +3,7 @@ using System;
 using Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace OffsiteWorker.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220426123158_DefaultDateAndContentType")]
+    partial class DefaultDateAndContentType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,7 +45,7 @@ namespace OffsiteWorker.Migrations
 
                     b.HasIndex("FileId");
 
-                    b.ToTable("ObjectStorageDeleteLogs", (string)null);
+                    b.ToTable("ObjectStorageDeleteLogs");
                 });
 
             modelBuilder.Entity("Core.Models.ObjectStorageFile", b =>
@@ -102,7 +104,7 @@ namespace OffsiteWorker.Migrations
                     b.HasIndex("Storage", "Path", "Version")
                         .IsUnique();
 
-                    b.ToTable("ObjectStorageFiles", (string)null);
+                    b.ToTable("ObjectStorageFiles");
                 });
 
             modelBuilder.Entity("Core.Models.ObjectStorageDeleteLog", b =>
