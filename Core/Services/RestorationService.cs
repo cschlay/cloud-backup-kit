@@ -20,6 +20,7 @@ public class RestorationService : IRestorationService
     
     public async Task<int> RestoreObjectStorageAsync(string storageName)
     {
+        _logger.LogInformation("Starting object storage restoration process...");
         IQueryable<ObjectStorageFile> files = _dbContext.ObjectStorageFiles
             .Where(m => m.Storage == storageName && m.Status == SyncStatusEnum.Completed);
 
@@ -29,7 +30,7 @@ public class RestorationService : IRestorationService
         {
             try
             {
-                await _storageProvider.RestoreFile(file);
+                await _storageProvider.RestoreFileAsync(file);
                 count++;
             }
             catch (DirectoryNotFoundException)
@@ -37,6 +38,7 @@ public class RestorationService : IRestorationService
                 file.Status = SyncStatusEnum.Deleted;
             }
         }
+        _logger.LogInformation("Object storage restoration finished: {count} files uploaded.", count);
 
         return count;
     }
