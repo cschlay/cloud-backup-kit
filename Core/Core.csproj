@@ -12,6 +12,7 @@
       <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
       <PackageReference Include="Npgsql" Version="6.0.4" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.4" />
+      <PackageReference Include="SSH.NET" Version="2020.0.2" />
     </ItemGroup>
 
 </Project>
