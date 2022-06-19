@@ -32,7 +32,7 @@ public class SshConfig
             }
             else if (trimmedLine.Length > 0)
             {
-                string[] content = line.Trim().Split(" ");
+                string[] content = line.Trim().Split(" ", 2);
                 item.AddValue(content[0], content[1]);
             }
         }
@@ -46,8 +46,16 @@ public class SshItem
     private readonly Dictionary<string, string> _fileContent;
 
     public string? HostName => ReadValue("HostName");
-    public string? User => ReadValue("User");
     public string? IdentityFile => ReadValue("IdentityFile");
+    public string? User => ReadValue("User");
+    public int Port
+    {
+        get
+        {
+            string? port = ReadValue("Port");
+            return port != null ? int.Parse(port) : 22;
+        }
+    }
     
     public SshItem()
     {
