@@ -40,7 +40,11 @@ public class RestorationServiceTest : DatabaseTestBase
     private void Setup()
     {
         const string directory = $"{TestConstants.FileDirectoryRoot}/test-restore";
-        Directory.Delete(directory, true);
+        if (Directory.Exists(directory))
+        {
+            Directory.Delete(directory, true);
+        }
+
         Directory.CreateDirectory(directory);
         for (var i = 1; i <= 5; i++)
         {
