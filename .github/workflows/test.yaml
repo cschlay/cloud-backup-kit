@@ -29,7 +29,5 @@ jobs:
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
           restore-keys: |
             ${{ runner.os }}-nuget
-      - name: Create Test Root
-        run: mkdir -p /home/runner/work/cloud-backup-kit/cloud-backup-kit/data/test-root
       - name: Test
         run: dotnet test

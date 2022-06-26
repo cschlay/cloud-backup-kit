@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -11,6 +12,8 @@ public class TestBase
     
     protected TestBase()
     {
+        new FileInfo(TestConstants.FileDirectoryRoot).Directory!.Create();
+        
         var builder = new ConfigurationBuilder();
         builder.AddInMemoryCollection(new Dictionary<string, string>
         {
