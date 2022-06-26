@@ -3,6 +3,8 @@
   <component name="UserContentModel">
     <attachedFolders />
     <explicitIncludes />
-    <explicitExcludes />
+    <explicitExcludes>
+      <Path>ConsoleTools/appsettings.json</Path>
+    </explicitExcludes>
   </component>
 </project>

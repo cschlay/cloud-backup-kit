@@ -17,7 +17,7 @@ public class SqlDumpService : ISqlDumpService
         SshConfig config = _sshService.ReadSshConfigFile();
         _sshService.InitializeConnectionDetails(config.GetItem(sshConfigName));
         (string remoteDumpDir, string filename) = DumpPostgres(databaseName);
-        DownloadDumpFile($"{localDumpDir}/{filename}", $"{remoteDumpDir}/{filename}");
+        DownloadDumpFile($"{localDumpDir}/{sshConfigName}/{filename}", $"{remoteDumpDir}/{filename}");
     }
 
     private void DownloadDumpFile(string localPath, string remotePath)
