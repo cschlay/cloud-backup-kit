@@ -7,17 +7,20 @@ namespace Core.Services;
 public class SshService : ISshService
 {
     private ConnectionInfo? _connectionInfo;
+
+    public void ExecuteSftp(Action<SftpClient> sftpCallback)
+    {
+        using var client = new SftpClient(_connectionInfo);
+        client.Connect();
+        sftpCallback.Invoke(client);
+        client.Disconnect();
+    }
     
-    public void ExecuteCommands(string[] commands)
+    public void ExecuteSsh(Action<SshClient> sshCallback)
     {
         using var client = new SshClient(_connectionInfo);
         client.Connect();
-        foreach (string command in commands)
-        {
-            using SshCommand executableCommand = client.CreateCommand(command);
-            string result = executableCommand.Execute();
-            Console.WriteLine(result);
-        }
+        sshCallback.Invoke(client);
         client.Disconnect();
     }
     

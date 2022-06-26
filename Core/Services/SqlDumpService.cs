@@ -12,26 +12,34 @@ public class SqlDumpService : ISqlDumpService
         _sshService = ssh;
     }
     
-    public void CreateDump(string databaseName)
+    public void CreateDump(string sshConfigName, string databaseName, string localDumpDir)
     {
         SshConfig config = _sshService.ReadSshConfigFile();
-        string dumpFilePath = DumpPostgres(databaseName);
-        // TODO: SFTP and download it.
+        _sshService.InitializeConnectionDetails(config.GetItem(sshConfigName));
+        (string remoteDumpDir, string filename) = DumpPostgres(databaseName);
+        DownloadDumpFile($"{localDumpDir}/{filename}", $"{remoteDumpDir}/{filename}");
     }
 
-    private string DumpPostgres(string databaseName)
+    private void DownloadDumpFile(string localPath, string remotePath)
     {
-        const string homeDirectory = "cloud-backup-kit";
-        var timestamp = DateTime.UtcNow.ToString("s");
-        var dumpFilePath = $"{homeDirectory}/database-dumps/main-{timestamp}.gz";
-        var commands = new []
+        _sshService.ExecuteSftp(sftp =>
         {
-            $"mkdir {homeDirectory}",
-            $"mkdir {homeDirectory}/database-dumps",
-            $"pg_dump {databaseName} | gzip > {dumpFilePath}"
-        };
-        _sshService.ExecuteCommands(commands);
-        
-        return dumpFilePath;
+            new FileInfo(localPath).Directory!.Create();
+            using FileStream localFileStream = File.Create(localPath);
+            sftp.DownloadFile(remotePath, localFileStream);
+        });
+    }
+
+    private (string, string) DumpPostgres(string databaseName)
+    {
+        const string homeDirectory = "cloud-backup-kit/database-dumps";
+        string timestamp = DateTime.UtcNow.ToString("s").Replace(":", "");
+        var filename = $"main-{timestamp}.sql.gz";
+        _sshService.ExecuteSsh(ssh =>
+        {
+            ssh.RunCommand($"mkdir -p {homeDirectory}");
+            ssh.RunCommand($"pg_dump {databaseName} | gzip > {homeDirectory}/{filename}");
+        });
+        return (homeDirectory, filename);
     }
 }

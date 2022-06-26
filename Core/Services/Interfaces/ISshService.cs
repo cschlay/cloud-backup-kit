@@ -1,10 +1,12 @@
 ﻿using Core.Services.ServiceDataModels;
+using Renci.SshNet;
 
 namespace Core.Services.Interfaces;
 
 public interface ISshService
 {
-    public void ExecuteCommands(string[] commands);
+    public void ExecuteSftp(Action<SftpClient> sftpCallback);
+    public void ExecuteSsh(Action<SshClient> sshCallback);
     public void InitializeConnectionDetails(SshItem item);
     
     /// <summary>
